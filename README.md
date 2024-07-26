@@ -1,7 +1,7 @@
 ### Checking Details
 Files that have checked to evaluate the script
 
-1. Index.html ==> This file contains the HTML code of the webpage. 
+1. Index.html: This file contains the HTML code of the webpage. This is the landing page of te testing website 
 
-2. allCheck100Accuracy.js ==> This file is used to check the scripts performance.   
+2. checker.js: This file is used to check the accessibility issues and the script performance.   
 
