@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "cheerio": "^1.0.0-rc.12"
+    "cheerio": "^1.0.0-rc.12",
+    "nodemon": "^3.1.7"
+  },
+  "scripts": {
+    "check" : "nodemon --watch checker.js --watch index.html --exec 'node checker.js'"
   }
 }

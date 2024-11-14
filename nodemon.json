@@ -1,0 +1,5 @@
+{
+    "watch": ["checker.js", "index.html"],
+    "ext": "js,html",
+    "exec": "node checker.js"
+  }
