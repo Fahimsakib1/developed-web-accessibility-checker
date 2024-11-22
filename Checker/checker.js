@@ -20,6 +20,7 @@ let totalImageWithIssuesScanned = 0;
 let totalFormWithIssuesScanned = 0;
 let totalInputFieldWithIssuesScanned = 0;
 let totalLabelWithIssuesScanned = 0;
+let totalLinkWithSpacesScanned = 0;
 
 
 
@@ -49,6 +50,25 @@ let totalFormPerformanceScanned;
 
 
 
+
+// Variables for Calculating ARIA
+let totalMissingARIACount = 0;
+let totalIssueFreeARIACount = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const startTime = new Date().getTime(); // Start timing
 
 function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
@@ -72,6 +92,8 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
     let invalidHrefAnchors = [];
     let issueFreeAnchors = [];
     let anchorNotContainImageProperly = [];
+    let hrefHavingSpaceInAnchors = [];
+
 
 
     const altRegexButton = /^[!@#$%^&*()_+{}\[\]:;<>,.?/~\\\-]+$/;
@@ -97,8 +119,6 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
         }
         issueFreeButtons.push($(this).toString());
     });
-
-
 
 
     anchorTags.each(function () {
@@ -150,12 +170,27 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
             totalAnchorTagsWithIssues.push($anchor.toString());
             totalLinkWithIssuesScanned++
             return;
-        } else if (!/^https?:\/\/|^www\./i.test(hrefAttribute) || specialCharRegex.test(anchorText)) {
+        }
+
+        else if (!/^https?:\/\/|^www\./i.test(hrefAttribute) || specialCharRegex.test(anchorText)) {
             invalidHrefAnchors.push($anchor.toString());
             totalAnchorTagsWithIssues.push($anchor.toString());
             totalLinkWithIssuesScanned++
             return;
         }
+
+        else if (!/^https?:\/\/|^www\./i.test(hrefAttribute) || specialCharRegex.test(anchorText) || /\s/.test(hrefAttribute)) {
+            invalidHrefAnchors.push($anchor.toString());
+            totalAnchorTagsWithIssues.push($anchor.toString());
+
+
+            hrefHavingSpaceInAnchors.push($anchor.toString());
+
+            totalLinkWithIssuesScanned++;
+
+            return;
+        }
+
         else {
             console.log('')
         }
@@ -171,6 +206,9 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
         }
 
     });
+
+
+
 
     if (emptyButtons.length === 0 && meaningLessTextInButtons.length === 0) {
         console.log('\n');
@@ -254,7 +292,7 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
     }
 
     //Anchor Summary Starts
-    if (emptyAnchors.length === 0 && meaningLessTextInAnchors.length === 0 && emptyHrefInAnchors.length === 0) {
+    if (emptyAnchors.length === 0 && meaningLessTextInAnchors.length === 0 && emptyHrefInAnchors.length === 0 && hrefHavingSpaceInAnchors.length == 0 && invalidHrefAnchors.length == 0) {
         console.log('\n');
         console.log('*********************** Anchor Summary ***********************');
         console.log("There is no empty anchor tag that contains no text in the code.");
@@ -290,13 +328,33 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
 
         //Invalid href in anchor tag or contains special characters in it
         console.log('\n')
-        console.log("Total Anchors with Invalid or meaning less text in href:", invalidHrefAnchors.length);
+        console.log("Total Anchors with Invalid or meaning less text or has spaces link in href:", invalidHrefAnchors.length);
         invalidHrefAnchors.map(singleAnchor => {
             console.log(singleAnchor);
         });
         if (invalidHrefAnchors.length > 0) {
             console.log("#### Solution: Don't use invalid or  meaning less texts or links in href. Use a proper href link instead");
         }
+
+
+
+
+
+
+
+
+        // //href in anchor tag contains space in it
+        // console.log('\n')
+        // console.log("Total Anchors with space in href:", hrefHavingSpaceInAnchors.length);
+        // hrefHavingSpaceInAnchors.map(singleAnchor => {
+        //     console.log(singleAnchor);
+        // });
+        // if (hrefHavingSpaceInAnchors.length > 0) {
+        //     console.log("#### Solution: Don't use gaps or spaces in href. Use a proper href link instead");
+        // }
+
+
+
 
         //Anchor Tag has images with issues
         console.log('\n')
@@ -351,6 +409,257 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
         console.log('Guideline for empty text in Link:', anchorLinkGuideline);
         console.log('More Guidelines for Link:', moreGuidelineLink);
     }
+
+
+
+
+
+
+    // Code for checking the ARIA attributes in HTML tags
+    const elementsToCheck = $('button, a, input, form, nav, footer, header, table');
+
+    // Initialize counters and arrays
+    let totalElementsScanned = 0;
+    let totalElementsWithIssuesScanned = 0;
+
+    let countMissingARIA = 0;
+    let countIssueFreeElements = 0;
+
+    // Arrays to store elements with missing ARIA for each tag
+    const missingARIAButtons = [];
+    const missingARIAAnchors = [];
+    const missingARIAForms = [];
+    const missingARIAInputs = [];
+    const missingARIANavs = [];
+    const missingARIAFooters = [];
+    const missingARIAHeaders = [];
+    const missingARIATables = [];
+
+    const issueFreeButtons1 = [];
+    const issueFreeAnchors1 = [];
+    const issueFreeForms1 = [];
+    const issueFreeInputs1 = [];
+    const issueFreeNavs1 = [];
+    const issueFreeFooters1 = [];
+    const issueFreeHeaders1 = [];
+    const issueFreeTables1 = [];
+
+    // Regular expression to identify ARIA attributes
+    const ariaRegex = /^aria-/;
+
+    // Iterate through the selected elements
+    elementsToCheck.each(function () {
+        totalElementsScanned++;
+
+        const $element = $(this);
+        const tagName = $element.prop('tagName').toLowerCase();
+
+        // Check if the element has any ARIA attributes
+        const hasARIA = Array.from($element[0].attributes).some(attr => ariaRegex.test(attr.name));
+
+        // Handle elements missing ARIA attributes
+        if (!hasARIA) {
+            totalElementsWithIssuesScanned++;
+            countMissingARIA++;
+            totalMissingARIACount++;
+
+            // Categorize based on the tag name
+            switch (tagName) {
+                case 'button':
+                    missingARIAButtons.push($element.prop('outerHTML'));
+                    break;
+                case 'a':
+                    missingARIAAnchors.push($element.prop('outerHTML'));
+                    break;
+                case 'form':
+                    missingARIAForms.push($element.prop('outerHTML'));
+                    break;
+                case 'input':
+                    missingARIAInputs.push($element.prop('outerHTML'));
+                    break;
+                case 'nav':
+                    missingARIANavs.push($element.prop('outerHTML'));
+                    break;
+                case 'footer':
+                    missingARIAFooters.push($element.prop('outerHTML'));
+                    break;
+                case 'header':
+                    missingARIAHeaders.push($element.prop('outerHTML'));
+                    break;
+                case 'table':
+                    missingARIATables.push($element.prop('outerHTML'));
+                    break;
+            }
+        } else {
+            countIssueFreeElements++;
+            totalIssueFreeARIACount++;
+
+            // Categorize issue-free elements based on the tag name
+            switch (tagName) {
+                case 'button':
+                    issueFreeButtons1.push($element.prop('outerHTML'));
+                    break;
+                case 'a':
+                    issueFreeAnchors1.push($element.prop('outerHTML'));
+                    break;
+                case 'form':
+                    issueFreeForms1.push($element.prop('outerHTML'));
+                    break;
+                case 'input':
+                    issueFreeInputs1.push($element.prop('outerHTML'));
+                    break;
+                case 'nav':
+                    issueFreeNavs1.push($element.prop('outerHTML'));
+                    break;
+                case 'footer':
+                    issueFreeFooters1.push($element.prop('outerHTML'));
+                    break;
+                case 'header':
+                    issueFreeHeaders1.push($element.prop('outerHTML'));
+                    break;
+                case 'table':
+                    issueFreeTables1.push($element.prop('outerHTML'));
+                    break;
+            }
+        }
+    });
+
+    // Output the counts
+    console.log('*********************** ARIA Attribute Summary ***********************')
+    console.log(`Total Elements Scanned: ${totalElementsScanned}`);
+    console.log(`Elements Missing ARIA Attributes: ${countMissingARIA}`);
+    console.log(`Issue-Free Elements: ${countIssueFreeElements}`);
+
+    // Output categorized results for missing ARIA attributes
+    console.log(`\nElements Missing ARIA Attributes (Categorized by Tag):`);
+
+    console.log('\n');
+    if (missingARIAButtons.length > 0) {
+        console.log(`Missing ARIA Buttons: ${missingARIAButtons.length}`, missingARIAButtons);
+    }
+    else {
+        console.log(`Missing ARIA Buttons: ${missingARIAButtons.length}`);
+    }
+
+    console.log('\n');
+    if (missingARIAAnchors.length > 0) {
+        console.log(`Missing ARIA Anchors: ${missingARIAAnchors.length}`, missingARIAAnchors);
+    }
+    else {
+        console.log(`Missing ARIA Anchors: ${missingARIAAnchors.length}`);
+    }
+
+    console.log('\n');
+    if (missingARIAForms.length) {
+        console.log(`Missing ARIA Forms: ${missingARIAForms.length}`, missingARIAForms);
+    }
+    else {
+        console.log(`Missing ARIA Forms: ${missingARIAForms.length}`);
+    }
+
+    console.log('\n');
+    if (missingARIAInputs.length) {
+        console.log(`Missing ARIA Inputs: ${missingARIAInputs.length}`, missingARIAInputs);
+    }
+    else {
+        console.log(`Missing ARIA Inputs: ${missingARIAInputs.length}`);
+    }
+
+    console.log('\n');
+    console.log(`Missing ARIA Nav: ${missingARIANavs.length}`);
+
+    console.log('\n');
+    console.log(`Missing ARIA Footers: ${missingARIAFooters.length}`);
+
+    console.log('\n');
+    console.log(`Missing ARIA Headers: ${missingARIAHeaders.length}`);
+
+    console.log('\n');
+    if (missingARIATables.length > 0) {
+        console.log(`Missing ARIA Tables: ${missingARIATables.length}`, missingARIATables);
+    }
+    else {
+        console.log(`Missing ARIA Tables: ${missingARIATables.length}`);
+    }
+
+
+    console.log('\n');
+    console.log('*********************** ARIA Improvement Suggestions ***********************')
+    console.log('\n');
+
+    console.log('********** Apply attributes like `aria-label`, `aria-labelledby`, and `aria-describedby` to interactive elements (e.g., buttons, links) for better screen reader support. Use roles like `role="button"` and `role="navigation"` where needed.')
+    console.log('********** For dynamic content, `aria-live` and `aria-relevant` help inform assistive technologies of updates.')
+
+
+
+    // Output categorized results for issue-free elements
+    console.log(`\nIssue-Free Elements (Categorized by Tag):`);
+    console.log('\n');
+
+    if (issueFreeButtons1.length > 0) {
+        console.log(`Issue-Free Buttons: ${issueFreeButtons1.length}`, issueFreeButtons1);
+    }
+    else {
+        console.log(`Issue-Free Buttons: ${issueFreeButtons1.length}`);
+    }
+
+
+    if (issueFreeButtons1.length > 0) {
+        console.log(`Issue-Free Buttons: ${issueFreeButtons1.length}`, issueFreeButtons1);
+    }
+    else {
+        console.log(`Issue-Free Buttons: ${issueFreeButtons1.length}`);
+    }
+
+
+    if (issueFreeAnchors1.length > 0) {
+        console.log(`Issue-Free Anchors: ${issueFreeAnchors1.length}`, issueFreeAnchors1);
+    }
+    else {
+        console.log(`Issue-Free Anchors: ${issueFreeAnchors1.length}`);
+    }
+
+
+    if (issueFreeForms1.length > 0) {
+        console.log(`Issue-Free Forms: ${issueFreeForms1.length}`, issueFreeForms1);
+    }
+    else {
+        console.log(`Issue-Free Forms: ${issueFreeForms1.length}`);
+    }
+
+
+    if (issueFreeNavs1.length > 0) {
+        console.log(`Issue-Free Nav: ${issueFreeNavs1.length}`, issueFreeNavs1);
+    }
+    else {
+        console.log(`Issue-Free Nav: ${issueFreeNavs1.length}`);
+    }
+
+
+    if (issueFreeFooters1.length > 0) {
+        console.log(`Issue-Free Footers: ${issueFreeFooters1.length}`, issueFreeFooters1);
+
+    }
+    else {
+        console.log(`Issue-Free Footers: ${issueFreeFooters1.length}`);
+    }
+
+
+    if (issueFreeHeaders1.length > 0) {
+        console.log(`Issue-Free Headers: ${issueFreeHeaders1.length}`, issueFreeHeaders1);
+    }
+    else {
+        console.log(`Issue-Free Headers: ${issueFreeHeaders1.length}`);
+    }
+
+
+    if (issueFreeTables1.length > 0) {
+        console.log(`Issue-Free Headers: ${issueFreeTables1.length}`, issueFreeTables1);
+    }
+    else {
+        console.log(`Issue-Free Headers: ${issueFreeTables1.length}`);
+    }
+
 
 
     const forms = $('form');
@@ -698,8 +1007,8 @@ function findImagesWithoutAlt(htmlContent) {
         }
         else if ((altAttribute !== undefined && (altAttribute.trim() === "" || altAttribute.trim() === " " || altAttribute.trim() === '' || altAttribute.trim() === ' ')) && (srcAttribute !== undefined && (srcAttribute.trim() === "" || srcAttribute.trim() === " " || srcAttribute.trim() === '' || srcAttribute.trim() === ' '))) {
             emptyAltAndSrcCount++;
-            totalImageWithIssuesScanned++
-            totalIssuesInImages.push($(this).toString());
+            totalImageWithIssuesScanned++ -
+                totalIssuesInImages.push($(this).toString());
             totalEmptyAltAndSrcAttributeInImages.push($(this).toString());
         }
         else if (altRegex.test(altAttribute.trim())) {
@@ -730,7 +1039,7 @@ function findImagesWithoutAlt(htmlContent) {
 
 
 // Read the file that we want to check accessibility issue
-fs.readFile('../index.html', 'utf8', (err, data) => {
+fs.readFile('../testFile.html', 'utf8', (err, data) => {
     if (err) {
         console.error("Error reading file:", err);
         return;
@@ -951,6 +1260,18 @@ fs.readFile('../index.html', 'utf8', (err, data) => {
     // call the function for showing issues of buttons, anchor tags, form label 
     findEmptyButtonsAndEmptyAnchorLink(data);
 
+
+
+
+    console.log('\n')
+    console.log('******************** ARIA Details ********************')
+
+    console.log(`Elements Missing ARIA Attributes: ${totalMissingARIACount}`);
+    console.log(`ARIA Issue-Free Elements: ${totalIssueFreeARIACount}`);
+
+
+
+
     console.log('\n')
     console.log('#################### Final Evaluation Summary ####################')
 
@@ -974,8 +1295,8 @@ fs.readFile('../index.html', 'utf8', (err, data) => {
 
 
     let totalMissingLabelsInInputFields = totalInputFieldScanned - totalLabelScanned
-    
-    
+
+
     let totalElementsWithIssues = totalImageWithIssuesScanned + totalButtonWithIssuesScanned + totalLinkWithIssuesScanned + totalInputFieldWithIssuesScanned + totalLabelWithIssuesScanned + totalMissingLabelsInInputFields;
     console.log("Total Elements (Image, Button, Link, Input, Label) with Issues : ", totalElementsWithIssues);
 
@@ -989,6 +1310,4 @@ fs.readFile('../index.html', 'utf8', (err, data) => {
 
     console.log(`Total scanning time: ${totalTime} seconds`);
 
-
 });
-
