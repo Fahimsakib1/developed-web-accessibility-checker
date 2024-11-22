@@ -416,7 +416,8 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
 
 
     // Code for checking the ARIA attributes in HTML tags
-    const elementsToCheck = $('button, a, input, form, nav, footer, header, table');
+    // const elementsToCheck = $('button, a, input, form, nav, footer, header, table, span, main, section, progress');
+    const elementsToCheck = $('button, a, input, form, nav, footer, header, table, span, main');
 
     // Initialize counters and arrays
     let totalElementsScanned = 0;
@@ -434,6 +435,13 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
     const missingARIAFooters = [];
     const missingARIAHeaders = [];
     const missingARIATables = [];
+    const missingARIASpans = [];
+    const missingARIAMains = [];
+    const missingARIASections = [];
+    const missingARIAProgress = [];
+
+
+
 
     const issueFreeButtons1 = [];
     const issueFreeAnchors1 = [];
@@ -443,9 +451,15 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
     const issueFreeFooters1 = [];
     const issueFreeHeaders1 = [];
     const issueFreeTables1 = [];
+    const issueFreeSpans1 = [];
+    const issueFreeMains1 = [];
+    const issueFreeSections1 = [];
+    const issueFreeProgress1 = [];
 
     // Regular expression to identify ARIA attributes
-    const ariaRegex = /^aria-/;
+    // const ariaRegex = /^aria-/;
+    const ariaRegex = /^(aria-(current|label|labelledby|pressed|expanded|hidden|disabled)|role|checked|details|invalid|selected|controls|describedby|required|readonly|placeholder|autocomplete|multiline)$/;
+
 
     // Iterate through the selected elements
     elementsToCheck.each(function () {
@@ -488,6 +502,18 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
                 case 'table':
                     missingARIATables.push($element.prop('outerHTML'));
                     break;
+                case 'span':
+                    missingARIASpans.push($element.prop('outerHTML'));
+                    break;
+                case 'main':
+                    missingARIAMains.push($element.prop('outerHTML'));
+                    break;
+                case 'section':
+                    missingARIASections.push($element.prop('outerHTML'));
+                    break;
+                case 'progress':
+                    missingARIAProgress.push($element.prop('outerHTML'));
+                    break;
             }
         } else {
             countIssueFreeElements++;
@@ -517,6 +543,18 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
                     break;
                 case 'table':
                     issueFreeTables1.push($element.prop('outerHTML'));
+                    break;
+                case 'span':
+                    issueFreeSpans1.push($element.prop('outerHTML'));
+                    break;
+                case 'main':
+                    issueFreeMains1.push($element.prop('outerHTML'));
+                    break;
+                case 'section':
+                    issueFreeSections1.push($element.prop('outerHTML'));
+                    break;
+                case 'progress':
+                    issueFreeProgress1.push($element.prop('outerHTML'));
                     break;
             }
         }
@@ -580,6 +618,40 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
         console.log(`Missing ARIA Tables: ${missingARIATables.length}`);
     }
 
+    console.log('\n');
+    if (missingARIASpans.length > 0) {
+        console.log(`Missing ARIA Spans: ${missingARIASpans.length}`, missingARIASpans);
+    }
+    else {
+        console.log(`Missing ARIA Spans: ${missingARIASpans.length}`);
+    }
+
+    console.log('\n');
+    if (missingARIAMains.length > 0) {
+        console.log(`Missing ARIA Main tags: ${missingARIAMains.length}`, missingARIAMains);
+    }
+    else {
+        console.log(`Missing ARIA Main Tags: ${missingARIAMains.length}`);
+    }
+
+
+    console.log('\n');
+    if (missingARIASections.length > 0) {
+        console.log(`Missing ARIA Section tags: ${missingARIASections.length}`, missingARIASections);
+    }
+    else {
+        console.log(`Missing ARIA Section Tags: ${missingARIASections.length}`);
+    }
+
+
+    console.log('\n');
+    if (missingARIAProgress.length > 0) {
+        console.log(`Missing ARIA Progress tags: ${missingARIAProgress.length}`, missingARIAProgress);
+    }
+    else {
+        console.log(`Missing ARIA Progress Tags: ${missingARIAProgress.length}`);
+    }
+
 
     console.log('\n');
     console.log('*********************** ARIA Improvement Suggestions ***********************')
@@ -602,11 +674,11 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
     }
 
 
-    if (issueFreeButtons1.length > 0) {
-        console.log(`Issue-Free Buttons: ${issueFreeButtons1.length}`, issueFreeButtons1);
+    if (issueFreeInputs1.length > 0) {
+        console.log(`Issue-Free Inputs: ${issueFreeInputs1.length}`, issueFreeInputs1);
     }
     else {
-        console.log(`Issue-Free Buttons: ${issueFreeButtons1.length}`);
+        console.log(`Issue-Free Inputs: ${issueFreeInputs1.length}`);
     }
 
 
@@ -652,11 +724,45 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
 
 
     if (issueFreeTables1.length > 0) {
-        console.log(`Issue-Free Headers: ${issueFreeTables1.length}`, issueFreeTables1);
+        console.log(`Issue-Free Tables: ${issueFreeTables1.length}`, issueFreeTables1);
     }
     else {
-        console.log(`Issue-Free Headers: ${issueFreeTables1.length}`);
+        console.log(`Issue-Free Tables: ${issueFreeTables1.length}`);
     }
+
+    if (issueFreeSpans1.length > 0) {
+        console.log(`Issue-Free Spans: ${issueFreeSpans1.length}`, issueFreeSpans1);
+    }
+    else {
+        console.log(`Issue-Free Spans: ${issueFreeSpans1.length}`);
+    }
+
+    if (issueFreeMains1.length > 0) {
+        console.log(`Issue-Free Mains: ${issueFreeMains1.length}`, issueFreeMains1);
+    }
+    else {
+        console.log(`Issue-Free Mains: ${issueFreeMains1.length}`);
+    }
+
+
+    if (issueFreeSections1.length > 0) {
+        console.log(`Issue-Free Sections: ${issueFreeSections1.length}`, issueFreeSections1);
+    }
+    else {
+        console.log(`Issue-Free Sections: ${issueFreeSections1.length}`);
+    }
+
+    if (issueFreeProgress1.length > 0) {
+        console.log(`Issue-Free Progress: ${issueFreeProgress1.length}`, issueFreeProgress1);
+    }
+    else {
+        console.log(`Issue-Free Progress: ${issueFreeProgress1.length}`);
+    }
+
+
+
+
+
 
 
 
