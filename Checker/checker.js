@@ -462,7 +462,6 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
             totalElementsWithIssuesScanned++;
             countMissingARIA++;
             totalMissingARIACount++;
-
             // Categorize based on the tag name
             switch (tagName) {
                 case 'button':
@@ -493,7 +492,6 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
         } else {
             countIssueFreeElements++;
             totalIssueFreeARIACount++;
-
             // Categorize issue-free elements based on the tag name
             switch (tagName) {
                 case 'button':
