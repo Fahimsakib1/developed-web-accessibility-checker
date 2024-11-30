@@ -1,6 +1,23 @@
-const fs = require('fs');
-const cheerio = require('cheerio');
+// const fs = require('fs');
+// const cheerio = require('cheerio');
+import fs from 'fs';
+// import path from 'path';
+import cheerio from 'cheerio';
 
+
+// import fs from 'fs';
+// import cheerio from 'cheerio'
+// const retext = require('retext');
+// const retextReadability = require('retext-readability')
+// const english = require('retext-english')
+// const reporter = require('vfile-reporter')
+// const retextProfanities = require('retext-profanities')
+
+// import { retext } from 'retext';
+// import retextReadability from 'retext-readability';
+// import english from 'retext-english';
+// import { reporter } from 'vfile-reporter';
+// import retextProfanities from 'retext-profanities'
 
 // total count of all elements for the final evaluation 
 let totalButtonScanned = 0;
@@ -20,7 +37,6 @@ let totalImageWithIssuesScanned = 0;
 let totalFormWithIssuesScanned = 0;
 let totalInputFieldWithIssuesScanned = 0;
 let totalLabelWithIssuesScanned = 0;
-
 
 
 let totalIssuesInImages = [];
@@ -571,6 +587,10 @@ function findEmptyButtonsAndEmptyAnchorLink(htmlContent) {
         totalLabelsIssueCount += emptyLabels.length + labelsWithSpecialCharacters.length;
 
         if (emptyLabels.length > 0 || labelsWithSpecialCharacters.length > 0 || issueLessFormLabel.length > 0 || labeledInputFields > 0 || missingTypeAttributesInInputField.length.length > 0) {
+            var getAllInputFieldsCount = 0;
+            var getAllLabelsCount = 0;
+            var getAllInputFieldsIssueCount = 0;
+            var getAllLabelsIssueCount = 0;
             console.log('\n');
             const formGuideline = 'https://www.w3.org/WAI/WCAG21/Understanding/labels-or-instructions.html'
             const formGuidelineMore = 'https://www.w3.org/WAI/tutorials/forms/labels/'
@@ -726,6 +746,41 @@ function findImagesWithoutAlt(htmlContent) {
         }
     });
     return { undefinedAltCount, emptyAltCount, undefinedSrcCount, emptySrcCount, emptyAltAndSrcCount, issueLessImageTagCount, meaningLessTextInAltCount, meaningLessTextInSrcCount, invalidSrcExtensionCount, totalIssuesInImages };
+}
+
+
+/**
+ * 
+ * check paragraph readability
+ */
+function checkParagraphReadability(htmlContent) {
+ 
+    const $ = cheerio.load(htmlContent);
+    const imgTags = $('img');
+    const paragraphTags = $('p');
+    const divTags = $('div');
+    const sectionTags = $('section');
+    const buttonTags = $('button');
+
+    // // const d = require('./paragraph.js');
+    // paragraphTags.each(async function () {
+    //     const paragraph = $(this).text().trim();
+    // d(paragraph);
+        
+    //     // console.log('ALT',paragraph)
+    // });
+    
+
+
+
+    // console.log('P TAGS', paragraphTags);
+    // console.log('DIV TAGS', divTags);
+    // console.log('SECTION TAGS', sectionTags);
+
+    // imgTags.each(() => {
+    //    const data=  $(this);
+    //    console.log(data, '\n')
+    // }) 
 }
 
 
@@ -945,11 +1000,11 @@ fs.readFile('index.html', 'utf8', (err, data) => {
             console.log('Guidelines for null or empty or suspicious alt text: ', nullOrEmptyTextOrMissingAltImage)
             console.log('Guidelines for how to Meet 1.1.1 (Non-text Content): ', howToSolveThisIssue)
         }
-
     }
 
     // call the function for showing issues of buttons, anchor tags, form label 
     findEmptyButtonsAndEmptyAnchorLink(data);
+    checkParagraphReadability(data);
 
     console.log('\n')
     console.log('#################### Final Evaluation Summary ####################')

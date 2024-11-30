@@ -1,9 +1,21 @@
 {
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "retext": "^9.0.0",
+    "retext-english": "^5.0.0",
+    "retext-profanities": "^8.0.0",
+    "retext-readability": "^8.0.0",
+    "vfile-reporter": "^8.1.1"
   },
   "scripts": {
-    "check" : "nodemon --watch checker.js --watch index.html --exec 'node checker.js'"
+    "check": "nodemon --watch checker.js --watch index.html --exec 'node checker.js'"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/register": "^7.25.9"
   }
 }
